@@ -1,0 +1,25 @@
+# Local dev dependencies. Spring Boot auto-detects this compose file with
+# spring-boot-docker-compose on the classpath and wires connections for you
+# (@ServiceConnection style) — no manual URLs needed at dev time.
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+    ports:
+      - "5432:5432"
+
+  # Uncomment when the service is event-driven:
+  # kafka:
+  #   image: apache/kafka:3.8.0
+  #   ports:
+  #     - "9092:9092"
+
+  # OpenTelemetry collector for local traces (optional):
+  # otel-collector:
+  #   image: otel/opentelemetry-collector-contrib:latest
+  #   ports:
+  #     - "4318:4318"

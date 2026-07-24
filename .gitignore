@@ -1,0 +1,27 @@
+# The templates in assets/ are intentional sample build files, not a real build.
+# This .gitignore only guards against accidental local build/IDE artifacts.
+
+# Build output
+target/
+build/
+*.class
+*.jar
+!**/assets/templates/*.jar   # (none expected, but keep templates safe)
+
+# Gradle
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
