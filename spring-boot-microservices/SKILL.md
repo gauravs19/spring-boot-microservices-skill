@@ -17,325 +17,163 @@ description: >-
 # Spring Boot Microservices
 
 A practitioner's skill for building and reviewing **production-grade** Spring Boot
-microservices the way strong teams do it in 2026: current Spring generation,
-Java 21+/25 LTS, virtual threads, first-class observability, resilience, and
-container-native deployment. It covers three jobs, and you pick the one the user
-actually needs:
+microservices the way strong teams do it in 2026. Three jobs — pick the one the
+request needs:
 
-- **Design** — shape the service and the system: boundaries, API contracts, data
-  ownership, communication style, cross-cutting concerns.
-- **Scaffold / build** — generate a correct, modern project and implement features
-  inside it with the right patterns.
-- **Review / audit** — read an existing service and judge it against modern
-  standards, producing prioritized, actionable findings.
+- **Design** — boundaries, API contracts, data ownership, communication style.
+- **Scaffold / build** — generate a correct modern project; implement features well.
+- **Review / audit** — judge an existing service against modern standards.
 
-Most real requests blend these. Read the request, decide which mode dominates,
-and route to the right workflow below. Keep this file in context; **load a
-`references/` file only when the task actually reaches that topic** — that is how
-this skill stays exhaustive without flooding the context window.
+Most requests blend these. This file is the router; **it stays loaded, so it's kept
+lean on purpose.** Depth lives in `references/` — load a reference only when the task
+actually reaches that topic, and see the [reference map](#reference-map) at the bottom.
 
----
+## Orient, and match effort to the task
 
-## First: orient before you act
+Before acting, settle three things — getting them wrong is the top cause of correct-
+but-useless advice: **(1) which mode** (ask if genuinely ambiguous); **(2) the version
+generation** — check `pom.xml`/`build.gradle` and the JDK, never assume (see
+[Version policy](#version-policy)); **(3) architecture context** — greenfield, one
+service in an existing estate, or a modular monolith. For existing code, actually read
+the build file, main class, a representative controller/service/repository, and
+`application.yml` before forming an opinion.
 
-Before writing or judging anything, establish three things. Getting these wrong is
-the single biggest cause of advice that is technically correct but useless to the
-user, so spend a moment here even under time pressure.
+Then calibrate how hard to lean on this skill — this matters because a capable model
+already writes correct idiomatic Spring Boot (adding `@Valid`, returning a 404, wiring
+a `SecurityFilterChain`) and loading references for those just spends context:
 
-1. **Which mode** — design, scaffold, or review. If ambiguous, ask one short
-   question rather than guessing; the workflows diverge sharply.
-2. **The version generation** — this decides syntax, package names, and available
-   features. Do not assume. Check `pom.xml` / `build.gradle(.kts)` and the JDK.
-   See "Version policy" below.
-3. **The architecture context** — is this a greenfield service, one service inside
-   an existing estate, or a modular monolith that may split later? Advice that
-   ignores the surrounding system (shared libraries, existing gateway, existing
-   auth) creates friction, not value.
+- **Narrow, well-specified change** (one endpoint, one clear bug, an obvious idiom):
+  apply the fix directly; do **not** deep-read references. If the request or a failing
+  test already fully specifies the answer, just do it.
+- **Open-ended / multi-concern / ambiguous work** (designing, choosing sync vs async,
+  reviewing unfamiliar code, "why is this slow/flaky", "is this production-ready"):
+  *this* is where the skill pays off — load the relevant references and the decision
+  tables/playbooks in `references/decisions-and-playbooks.md`.
 
-For an existing codebase, actually read the build file, the main application
-class, a representative controller/service/repository, and the config
-(`application.yml`) before forming an opinion. Modern-standards advice given
-without reading the code reads as generic and erodes trust.
+## Version policy
 
----
+Quoting a stale or mismatched version is worse than quoting none.
 
-## Match effort to the task (don't over-consult)
-
-A strong model already writes correct, idiomatic Spring Boot for narrow,
-well-specified tasks — adding `@Valid`, returning a 404, wiring a
-`SecurityFilterChain`. On those, this skill earns nothing by loading a pile of
-reference files; it just spends context. So calibrate:
-
-- **Single, well-specified change** (one endpoint, one clear bug, an obvious idiom):
-  apply the fix directly. Do **not** deep-read reference files — at most glance at the
-  one relevant section. Speed and restraint are the right call.
-- **Open-ended, multi-concern, or ambiguous work** (designing a service, choosing
-  sync vs async, reviewing an unfamiliar codebase, "why is this slow/flaky", "is this
-  production-ready"): *this* is where the skill pays off. Load the relevant references,
-  use the decision tables and playbooks in `references/decisions-and-playbooks.md`, and
-  bring the estate-level judgment a bare model won't produce on its own.
-
-The skill's value is judgment on the hard, underspecified calls — not restating what
-the model already knows on the easy ones. When in doubt about which situation you're
-in, ask whether the failing test / the request already fully specifies the answer; if
-it does, just do it.
-
----
-
-## Version policy (read this before quoting any version)
-
-"Modern" is a moving target, and quoting a stale or mismatched version is worse
-than quoting none. Follow these rules:
-
-- **Default generation:** Spring Boot **4.x** on **Spring Framework 7**, built and
-  run on **Java 25 (LTS)**. Java 21 (LTS) is the acceptable floor; treat anything
-  below 21 as legacy that should be planned off.
-- **Conservative baseline:** Spring Boot **3.5.x** is still fully supported and a
-  reasonable choice for teams not ready for the 4.x jump. When you see it, work
-  *with* it — don't reflexively push an upgrade unless the user asked.
-- **Namespace:** the current generation is **Jakarta EE** — imports are
-  `jakarta.*` (e.g. `jakarta.persistence`, `jakarta.validation`), never
-  `javax.*`. Seeing `javax.*` in a supposedly-modern service is itself a finding.
-- **Spring Cloud:** never choose a Spring Cloud version independently. Each Spring
-  Boot generation pins a specific Spring Cloud **release train**; picking
-  mismatched versions is a classic, painful bug. Always resolve the train from the
-  official compatibility matrix for the project's exact Boot version, and let the
-  BOM manage it. See `references/spring-cloud-infra.md`.
-- **When unsure of an exact minor version, say so** and point to the build file or
-  the compatibility matrix rather than inventing a number. Being honest about a
-  version you can't verify is more useful than confident precision that's wrong.
-
----
+- **Default:** Spring Boot **4.x** / Spring Framework 7 / **Java 25 (LTS)**. Java 21 is
+  the floor; below 21 is legacy to plan off.
+- **Conservative baseline:** Spring Boot **3.5.x** is fully supported — work *with* it,
+  don't reflexively push an upgrade unless asked.
+- **Namespace:** current generation is **Jakarta** (`jakarta.*`), never `javax.*`.
+  `javax.*` in a "modern" service is itself a finding.
+- **Spring Cloud:** never pick its version independently — each Boot generation pins a
+  release **train**; mismatches are a classic painful bug. Resolve the train from the
+  official compatibility matrix and let the BOM manage it (`references/spring-cloud-infra.md`).
+- **When unsure of an exact version, say so** and point to the build file / matrix
+  rather than inventing a number.
 
 ## Mode 1 — Design
 
-Use when the user is deciding *what to build* or *how to structure it* before (or
-independent of) writing code: service boundaries, API shape, data ownership,
-sync-vs-async communication, or "should this even be a separate service".
+Deciding *what to build* / *how to structure it*. Work these as deep as the request
+needs; details in `references/architecture-and-design.md`.
 
-Work through these, but only as deep as the request needs:
+1. **Boundaries first** — around business capabilities and data ownership, not
+   technical layers. If the domain isn't clearly decomposed, prefer a **modular
+   monolith** (Spring Modulith) and split later; premature splitting is the most
+   expensive mistake here.
+2. **API contract** — resource model, error model (Problem Details/RFC 9457),
+   pagination, versioning — decided before implementation (`references/rest-api-design.md`).
+3. **Communication style** — sync vs async **per interaction**; default async for
+   cross-service state propagation (`references/decisions-and-playbooks.md`).
+4. **Data ownership & consistency** — one owner per datum; sagas/outbox, never
+   distributed transactions (`references/persistence-and-data.md`).
+5. **Cross-cutting concerns as platform** — auth, config, observability, resilience
+   consistent across the estate (gateway / shared starter / mesh).
 
-1. **Boundaries first.** Draw service boundaries around business capabilities and
-   data ownership, not around technical layers or team org charts. A service that
-   can't own its data and make decisions without synchronously calling three others
-   isn't a microservice — it's a distributed monolith, which is the worst of both
-   worlds. If the domain isn't clearly decomposed yet, strongly consider a **modular
-   monolith** (Spring Modulith) first and split later; premature splitting is the
-   most expensive mistake in this space. See `references/architecture-and-design.md`.
-2. **API contract.** Define the external contract deliberately — resource model,
-   error model (Problem Details / RFC 9457), pagination, versioning strategy — before
-   implementation, because the contract is the expensive-to-change part. See
-   `references/rest-api-design.md`.
-3. **Communication style.** Choose synchronous (REST/HTTP, gRPC) vs asynchronous
-   (events over Kafka/RabbitMQ) per interaction, and justify it. Default to
-   async/event-driven for cross-service state propagation to avoid tight temporal
-   coupling; use sync for genuine request/response. See
-   `references/resilience-and-communication.md` and `references/messaging-and-events.md`.
-4. **Data ownership & consistency.** One service owns each piece of data. Decide how
-   consistency is maintained across services (sagas, outbox pattern, eventual
-   consistency) — distributed transactions across services are an anti-pattern. See
-   `references/persistence-and-data.md`.
-5. **Cross-cutting concerns as platform, not per-service code.** Auth, config,
-   observability, and resilience should be consistent across the estate. Decide
-   where they live (gateway, shared starter, service mesh, sidecar).
-
-Deliverable: a concise design writeup or ADR. If the user wants diagrams or a
-formal architecture document, the separate `enterprise-architecture` skill is the
-better tool — hand off rather than reinventing C4/ADR machinery here.
-
----
+Deliverable: a concise writeup or ADR. For formal diagrams/C4, hand off to the
+`enterprise-architecture` skill rather than reinventing it here.
 
 ## Mode 2 — Scaffold / build
 
-Use when the user wants a new project created, or a feature implemented inside an
-existing one.
+Keep this mode **lean** — a capable model already writes good implementation code, so
+don't front-load reference reading; reach for a reference only when a concrete build
+decision is genuinely open. The leverage here is getting the baseline right and
+steering the few real forks.
 
-Keep this mode lean. A capable model already produces correct, idiomatic
-implementation code, so don't front-load reference reading here — reach for a
-specific reference only when a concrete decision in the build is genuinely open (which
-persistence style, which communication pattern), and otherwise just build. The skill's
-leverage in this mode is getting the *baseline* right (below) and steering the handful
-of real forks, not narrating code the model would write correctly anyway.
+**New project:** (1) confirm Maven or Gradle and Java version (default Java 25);
+(2) generate the base from **Spring Initializr**, then adjust — it guarantees a coherent
+dependency set incl. the right Spring Cloud train; (3) wire the non-negotiable baseline:
+Actuator + K8s health probes, structured logging, externalized config, a global error
+handler, virtual threads. See `references/project-setup.md` and `assets/templates/`.
 
-**For a brand-new project:**
+**Feature in an existing project:** (1) **match the surrounding code** — its layout,
+naming, idioms beat personal preference; (2) implement the vertical slice with
+validation, error handling, tests, and observability included, not bolted on; (3) write
+tests as you go, Testcontainers for anything touching a real dependency.
 
-1. Confirm build tool (Maven or Gradle) and Java version if not obvious; both are
-   fully supported here. Default to Java 25 LTS.
-2. Prefer generating the base from **Spring Initializr** (`start.spring.io`) rather
-   than hand-writing a build file from memory — it guarantees a coherent, current
-   dependency set. Then adjust. `references/project-setup.md` has the correct
-   dependency choices, ready-to-use `pom.xml` / `build.gradle.kts` templates in
-   `assets/templates/`, and the standard package/layer structure.
-3. Wire the non-negotiable baseline every service needs: Actuator with K8s
-   health probes, structured logging, externalized config, a sane error handler,
-   and virtual threads enabled. `references/project-setup.md` and
-   `references/observability.md`.
+Load the reference matching what you're implementing:
 
-**For a feature inside an existing project:**
-
-1. **Match the surrounding code.** Read neighboring classes first and follow the
-   project's existing package layout, naming, and idioms. A technically-superior
-   pattern that clashes with the codebase's conventions is the wrong pattern here —
-   consistency beats personal preference.
-2. Implement the vertical slice (controller → service → repository, or the reactive
-   equivalent) with validation, error handling, tests, and observability included —
-   not bolted on later.
-3. Write the tests as you go using Testcontainers for anything touching a real
-   dependency (DB, broker). See `references/testing.md`.
-
-Topic-specific guidance lives in the reference files — load the one that matches
-what you're implementing:
-
-| If you're working on... | Read |
+| Working on... | Read |
 |---|---|
-| A genuinely ambiguous choice, or an underspecified symptom | `references/decisions-and-playbooks.md` |
+| An ambiguous choice, or an underspecified symptom | `references/decisions-and-playbooks.md` |
 | Project layout, build files, dependencies, profiles | `references/project-setup.md`, `references/configuration-and-profiles.md` |
-| REST controllers, DTOs, validation, errors, versioning | `references/rest-api-design.md` |
+| Controllers, DTOs, validation, errors, versioning | `references/rest-api-design.md` |
 | JPA/Hibernate, R2DBC, migrations, transactions | `references/persistence-and-data.md` |
 | AuthN/AuthZ, OAuth2, JWT, method security | `references/security.md` |
 | Gateway, config server, service discovery | `references/spring-cloud-infra.md` |
 | Circuit breakers, retries, timeouts, HTTP clients | `references/resilience-and-communication.md` |
 | Kafka, events, outbox, idempotency | `references/messaging-and-events.md` |
 | Metrics, tracing, logging, Actuator | `references/observability.md` |
-| Unit/slice/integration tests, Testcontainers | `references/testing.md` |
-| Dockerfile, image build, Kubernetes, native image | `references/containerization-and-k8s.md` |
-
----
+| Tests, Testcontainers | `references/testing.md` |
+| Dockerfile, images, Kubernetes, native | `references/containerization-and-k8s.md` |
 
 ## Mode 3 — Review / audit
 
-Use when the user points at an existing service and wants it judged: "review this",
-"is this production-ready", "what's wrong with my Spring Boot service", "modernize
-this".
+For "review this", "is this production-ready", "what's wrong", "modernize this".
 
-**Process:**
-
-1. **Read before judging.** Read the build file, main class, config, and a
-   representative slice of controllers/services/repositories/tests. You cannot review
-   what you haven't read; generic checklists applied blind are the hallmark of a bad
-   review.
+1. **Read before judging** — build file, main class, config, a representative slice of
+   controllers/services/repositories/tests. Blind checklists are the mark of a bad review.
 2. **Check correctness and intent FIRST — before any standards checklist.** Trace what
-   each piece of code actually *does*, and compare it to what it clearly *intends*
-   (from names, comments, and the surrounding flow). Look specifically for: return
-   values or responses that are fetched and then ignored, logic that contradicts its
-   own comment, the wrong identifier/field being used, dead or unreachable branches,
-   and off-by-one/boundary mistakes. This step exists because a standards checklist,
-   run first, makes you audit *conventions* and glide right past a method that compiles
-   cleanly, follows every idiom, and still does the wrong thing — which is exactly the
-   most damaging kind of bug. Functional wrongness outranks every style finding.
-3. **Then work the dimensions** in `references/review-checklist.md`. It is the canonical
-   checklist covering: version currency, architecture & boundaries, API design,
-   persistence & transactions, security, resilience, configuration & secrets,
-   observability, testing, and build/deployment.
-4. **Verify, don't assume.** Before reporting a problem, confirm it against the
-   actual code — an unverified finding that turns out wrong costs more trust than a
-   missed one. Distinguish confirmed issues from things you suspect but couldn't
-   verify.
-5. **Prioritize by real impact.** Rank findings by severity (correctness/security
-   first, then reliability, then maintainability, then style). A flat list of 40
-   nitpicks is far less useful than the 5 things that actually matter, ordered.
+   each critical method *does* vs. what it *intends* (names, comments, flow). Hunt for
+   results fetched then ignored, logic that contradicts its comment, wrong
+   identifier/field, dead branches, boundary/null mistakes. Run first because once
+   you're auditing conventions you glide past a method that compiles, follows every
+   idiom, and still does the wrong thing — the most damaging bug. Functional wrongness
+   outranks every style finding.
+3. **Then work the dimensions and use the report format** in `references/review-checklist.md`.
+4. **Verify, don't assume** — confirm each finding against the code; separate confirmed
+   from suspected.
+5. **Prioritize by real impact** — severity order (correctness/security → reliability →
+   maintainability → style). Five things that matter beat forty nitpicks.
 
-**Report format** — use this structure so reviews are consistent and scannable:
+Interaction with your `perf-review-be` skill: that one owns the **DB/query-performance**
+lens (N+1, indexing, pooling); defer to it for the DB layer rather than duplicating.
 
-```
-## Summary
-<2-4 sentences: overall health, the single most important thing to fix>
+## Principles & anti-patterns
 
-## Critical  (correctness / security — fix before ship)
-- <finding> — <file:line> — why it matters — how to fix
+Apply in every mode; reasoning in `references/principles-and-anti-patterns.md`.
 
-## High  (reliability / data integrity)
-- ...
-
-## Medium  (maintainability / modernization)
-- ...
-
-## Low / nits
-- ...
-
-## What's already good
-<call out real strengths — a review that only lists problems is demoralizing and
-loses credibility; acknowledging what's right shows you actually read it>
-```
-
-Note the interaction with your existing `perf-review-be` skill: that one owns the
-**database/query performance** lens in depth (N+1, indexing, pooling, slow
-endpoints). This skill's review mode covers the broader service. When performance
-is the focus, defer to `perf-review-be` for the DB layer rather than duplicating it.
-
----
-
-## Cross-cutting principles (apply in every mode)
-
-These are the through-lines that separate a service that merely runs from one a
-team can operate at 2am. Weave them in everywhere rather than treating them as a
-final checklist.
-
-- **Observability is not optional.** Every service ships with metrics
-  (Micrometer), distributed tracing (Micrometer Tracing → OpenTelemetry), and
-  structured logs correlated by trace ID from day one. Adding it after an incident
-  is too late. `references/observability.md`.
-- **Design for failure.** Every remote call has a timeout, a retry policy where
-  safe, and a circuit breaker. The default assumption is that dependencies *will*
-  be slow or down. `references/resilience-and-communication.md`.
-- **Configuration and secrets are externalized.** No secrets in code, images, or
-  git. Config comes from the environment/config server/K8s; profiles keep
-  environments separated. `references/configuration-and-profiles.md`.
-- **Virtual threads by default.** On Java 21+, prefer virtual threads
-  (`spring.threads.virtual.enabled=true`) for the simple, scalable
-  thread-per-request model, unless there's a specific reason to go reactive.
-- **Tests are part of "done".** A feature without tests isn't finished. Favor fast
-  slice tests plus Testcontainers-backed integration tests over brittle mocks of
-  infrastructure. `references/testing.md`.
-- **Statelessness & the 12-factor mindset.** Services should be horizontally
-  scalable and disposable; state lives in datastores, not in memory.
-- **Least surprise.** Follow Spring idioms and the project's own conventions.
-  Clever, non-idiomatic code is a liability in a service many people maintain.
-
----
-
-## Anti-patterns to actively push back on
-
-Naming these explicitly matters because they're common, they look reasonable, and
-letting them slide is how services rot. When you see one, say so and explain the
-cost, don't just silently work around it.
-
-- **Distributed monolith** — services so chatty and synchronously coupled they must
-  deploy together. Fix by rethinking boundaries and going async.
-- **Shared database across services** — kills independent evolution and ownership.
-  Each service owns its schema.
-- **Anemic + leaky layering** — entities used as API DTOs, business logic in
-  controllers, `@Autowired` field injection. Use constructor injection, keep the web
-  layer thin, don't expose JPA entities over the wire.
-- **Legacy stack presented as current** — `javax.*`, Zuul 1, Hystrix, Netflix
-  Ribbon, Java 8/11. These are end-of-life; flag them.
-- **Swallowed exceptions & generic 500s** — no error model, `catch (Exception e) {}`,
-  stack traces leaked to clients. Use Problem Details and a global handler.
-- **Security theater** — permitAll everywhere, secrets in `application.properties`,
-  JWTs validated loosely. Security is a first-class concern.
-- **"We'll add observability/tests/resilience later."** Later rarely comes; the
-  cost of retrofitting is much higher than building it in.
-
----
+- **Principles:** observability from day one; design for failure (timeouts + breakers);
+  externalized config/secrets; virtual threads by default; tests are part of "done";
+  stateless/12-factor; least surprise (follow the project's idioms).
+- **Push back on:** distributed monolith; shared DB across services; leaky layering
+  (entities as DTOs, logic in controllers, field injection); legacy stack shown as
+  current (`javax.*`, Zuul/Hystrix/Ribbon, Java 8/11, `WebSecurityConfigurerAdapter`);
+  swallowed exceptions / generic 500s; security theater; "we'll add it later".
 
 ## Reference map
 
-All depth lives in `references/`. Load on demand:
+Load on demand:
 
-- `architecture-and-design.md` — boundaries, modular monolith vs microservices, DDD-lite, patterns.
+- `architecture-and-design.md` — boundaries, modular monolith vs microservices, DDD-lite.
+- `decisions-and-playbooks.md` — **decision tables for the ambiguous forks + diagnostic playbooks; the highest-leverage file on open-ended work.**
 - `project-setup.md` — Initializr, Maven & Gradle, structure, dependencies, virtual threads.
 - `configuration-and-profiles.md` — externalized config, profiles, config server, secrets.
 - `rest-api-design.md` — resources, DTOs, validation, Problem Details, pagination, versioning, OpenAPI.
-- `persistence-and-data.md` — JPA/Hibernate, R2DBC, transactions, migrations (Flyway/Liquibase), data ownership.
+- `persistence-and-data.md` — JPA/Hibernate, R2DBC, transactions, migrations, data ownership.
 - `security.md` — Spring Security 6/7, OAuth2 resource server, JWT, method security.
 - `spring-cloud-infra.md` — Gateway, Config Server, discovery, release-train alignment.
-- `resilience-and-communication.md` — Resilience4j, timeouts/retries/bulkheads, HTTP interface clients, OpenFeign.
+- `resilience-and-communication.md` — Resilience4j, timeouts/retries/bulkheads, HTTP clients.
 - `messaging-and-events.md` — Kafka, event-driven patterns, transactional outbox, idempotency.
 - `observability.md` — Micrometer metrics, tracing→OpenTelemetry, structured logging, Actuator.
 - `testing.md` — test pyramid, slice tests, Testcontainers, contract testing.
-- `containerization-and-k8s.md` — layered/buildpack images, Dockerfile, GraalVM native, K8s manifests & probes.
-- `decisions-and-playbooks.md` — decision tables for the ambiguous forks (sync vs async, JPA vs JDBC vs R2DBC, split-vs-keep) and diagnostic playbooks for underspecified symptoms ("slow endpoint", "intermittent 500s"). **This is where the skill adds the most over a bare model — reach for it on open-ended calls.**
-- `review-checklist.md` — the canonical audit checklist for Mode 3.
+- `containerization-and-k8s.md` — layered/buildpack images, Dockerfile, GraalVM native, K8s probes.
+- `principles-and-anti-patterns.md` — the through-lines and anti-patterns, with reasoning.
+- `review-checklist.md` — canonical audit checklist + report format for Mode 3.
 
-`assets/templates/` holds ready-to-adapt `pom.xml`, `build.gradle.kts`,
-`Dockerfile`, `compose.yaml`, and `application.yml` starters.
+`assets/templates/` holds ready-to-adapt `pom.xml`, `build.gradle.kts`, `Dockerfile`,
+`compose.yaml`, and `application.yml` starters.

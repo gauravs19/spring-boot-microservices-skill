@@ -13,7 +13,7 @@
       "name": "spring-boot-microservices",
       "source": "./",
       "description": "Design, scaffold, and review modern Java Spring Boot microservices (Spring Boot 4.x / Java 25 LTS, Maven + Gradle) across the full modern stack — API design, persistence, security, Spring Cloud, resilience, messaging, observability, testing, and Kubernetes. Three modes: design, scaffold, review.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Gaurav Sharma"
       },

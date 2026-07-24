@@ -8,6 +8,31 @@ give the fix. Verify against the actual code before reporting, and rank by sever
 Performance/DB depth (query plans, indexing, pool sizing) belongs to the
 `perf-review-be` skill — defer there rather than duplicating it.
 
+## Report format
+
+Use this structure so reviews are consistent and scannable:
+
+```
+## Summary
+<2-4 sentences: overall health, the single most important thing to fix>
+
+## Critical  (correctness / security — fix before ship)
+- <finding> — <file:line> — why it matters — how to fix
+
+## High  (reliability / data integrity)
+- ...
+
+## Medium  (maintainability / modernization)
+- ...
+
+## Low / nits
+- ...
+
+## What's already good
+<call out real strengths — a review that only lists problems is demoralizing and
+loses credibility; acknowledging what's right shows you actually read it>
+```
+
 ## 0. Correctness & intent (do this BEFORE the rest)
 
 Run this pass first, deliberately, before any convention check — because once you're

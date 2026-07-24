@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.2.0
+
+Targets the token overhead that v1.1's triage gate failed to reduce (see
+`evals/RESULTS.md`).
+
+### Changed
+- **Slimmed the always-loaded `SKILL.md` body by ~48%** (341 → 179 lines) — the
+  structural source of the per-invocation token overhead. Verbose cross-cutting
+  principles / anti-patterns and the review report-format template moved into
+  references; the body is now a lean router plus the irreducible judgment.
+- **Measured effect:** bug-fix suite token overhead dropped from ~+21% to ~+13% over
+  baseline (~48.5k → ~45.5k tokens/task), correctness unchanged (3/3, no test
+  tampering). Roughly a third of the excess overhead removed. The residual is the
+  irreducible cost of loading the router; driving it lower is a triggering-tuning
+  problem, not a content one.
+- Enhanced README (detailed mode/coverage/reference tables, usage examples, measured
+  validation).
+
+### Added
+- `references/principles-and-anti-patterns.md` — the cross-cutting principles and
+  anti-patterns (with reasoning) that previously lived inline in `SKILL.md`.
+- Review report-format template moved into `references/review-checklist.md`.
+
 ## 1.1.0
 
 Driven by the repo's own evals (`evals/`, results in `evals/RESULTS.md`).

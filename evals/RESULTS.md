@@ -8,29 +8,35 @@ treat them as directional, not leaderboard-precise. Methodology and fixtures are
 
 N=3 tasks, skill-on vs no-skill baseline, graded objectively by `mvn test`.
 
-| Run | Resolved | Tests modified | Avg tokens / task | Avg wall-time / task |
+| Run | Resolved | Tests modified | Avg tokens / task | Overhead vs baseline |
 |---|---|---|---|---|
-| Baseline (no skill) | 3/3 | none | ~40,200 | ~206 s |
-| v1.0 skill-on | 3/3 | none | ~47,500 | ~198 s |
-| v1.1 skill-on (rerun) | 3/3 | none | ~48,500 | ~139 s |
+| Baseline (no skill) | 3/3 | none | ~40,200 | — |
+| v1.0 skill-on | 3/3 | none | ~47,500 | +7,300 (+18%) |
+| v1.1 skill-on | 3/3 | none | ~48,500 | +8,300 (+21%) |
+| v1.2 skill-on (slimmed body) | 3/3 | none | **~45,500** | **+5,300 (+13%)** |
 
 **Read:** no pass-rate lift in any run — the *expected and desired* result for this
 suite. A capable model already fixes well-specified bugs; the suite's job is to prove
 the skill doesn't **regress** correctness or mislead on concrete code. It doesn't
-(3/3, no test tampering, across both versions). Lift is not expected here — see the
-review suite.
+(3/3, no test tampering, every version). Lift is not expected here — see the review suite.
 
-**Honest note on the token overhead (v1.1 rerun):** v1.1's "match effort to the task"
-triage gate was intended to cut the ~+18% token overhead on trivial tasks. The rerun
-shows it **did not** — v1.1 skill-on is ~48.5k tokens vs v1.0's ~47.5k (flat, slightly
-up), still ~+21% over baseline. The overhead is **structural**: it's the cost of the
-always-loaded `SKILL.md` body, which the gate can't remove (and v1.1's body is slightly
-larger). The gate only avoids *reference-file* reads, and on these already-narrow tasks
-the agents weren't deep-reading references much anyway, so there was little to save. The
-wall-time drop is real but unreliable across separate runs (machine-load sensitive) and
-is not claimed as a win. Cutting trivial-task overhead needs a **leaner SKILL.md body**
-or **triggering tuning** so the skill doesn't fire on one-liners at all — deferred to a
-future version.
+**Token overhead — the honest arc:**
+
+- **v1.1** added a "match effort to the task" triage gate meant to cut the overhead. A
+  rerun showed it **did not** (~48.5k, flat/slightly up). The overhead is *structural* —
+  the always-loaded `SKILL.md` body — which a gate *inside* that body can't remove. The
+  gate only avoids *reference* reads, and on already-narrow tasks there was little of
+  that to save.
+- **v1.2** attacked the actual cause: the `SKILL.md` body was cut **48%** (341→179
+  lines) by moving verbose principles/anti-patterns and the review-format template into
+  on-demand references. That reduced overhead from +21% to **+13%** — roughly **a third
+  of the excess removed**, correctness unchanged (3/3).
+
+The residual ~+13% is the irreducible cost of loading the router body at all. Driving it
+lower would require **triggering tuning** so the skill doesn't fire on one-liners (the
+description-optimization loop — blocked on this Windows box, needs a Linux/WSL run). Net:
+the body-slim fix worked and is banked; the last mile is a triggering problem, not a
+content problem.
 
 ## Review suite (where the lift is)
 
