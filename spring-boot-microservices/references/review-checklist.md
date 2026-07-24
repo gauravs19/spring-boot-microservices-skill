@@ -8,6 +8,33 @@ give the fix. Verify against the actual code before reporting, and rank by sever
 Performance/DB depth (query plans, indexing, pool sizing) belongs to the
 `perf-review-be` skill — defer there rather than duplicating it.
 
+## 0. Correctness & intent (do this BEFORE the rest)
+
+Run this pass first, deliberately, before any convention check — because once you're
+in "standards checklist" mode you start pattern-matching idioms and stop reading the
+code as a program, and that's exactly how a method that compiles, follows every
+convention, and still does the wrong thing sails through review. Functional wrongness
+outranks every finding below it.
+
+For each method in the critical path, trace what it actually does and compare to what
+it clearly intends (from names, comments, surrounding flow), looking for:
+
+- **Ignored results** — a value fetched from a DB/remote call/computation and then
+  never used, while the code proceeds as if it had acted on it. (This is the exact bug
+  the earlier review missed: an inventory response was fetched and discarded, yet the
+  order was confirmed anyway.)
+- **Logic that contradicts its comment or name** — `isValid()` that can't return false,
+  a "check stock" that never checks.
+- **Wrong identifier/field** — keying a lookup by `customerId` when it should be a
+  product/SKU; comparing the wrong two things.
+- **Dead / unreachable branches**, swallowed conditions, and inverted booleans.
+- **Boundary / off-by-one** errors and empty-collection / null edge cases.
+- **Missing steps** the flow implies but never performs (validation promised in a
+  comment, a state transition that never happens).
+
+Report anything here as Critical/High regardless of how clean the surrounding style
+is. A beautifully-layered service that computes the wrong answer is still broken.
+
 ## 1. Version currency & stack
 
 - Spring Boot generation — current (4.x / 3.5.x supported) or end-of-life?

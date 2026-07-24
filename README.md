@@ -83,6 +83,7 @@ spring-boot-microservices/
 │   ├── observability.md
 │   ├── testing.md
 │   ├── containerization-and-k8s.md
+│   ├── decisions-and-playbooks.md # decision tables + diagnostic playbooks
 │   └── review-checklist.md
 └── assets/templates/              # ready-to-adapt starters
     ├── pom.xml
@@ -90,7 +91,21 @@ spring-boot-microservices/
     ├── Dockerfile
     ├── compose.yaml
     └── application.yml
+
+evals/                             # reproducible evaluations (see evals/README.md)
+├── bugfix/                        # objective, mvn-test-graded bug-fix suite (regression guard)
+└── review/                        # labelled flawed service + answer key (where the skill's lift shows)
 ```
+
+## Validation
+
+The skill ships with its own evals (`evals/`) and a results log (`evals/RESULTS.md`).
+In short: on objective, test-graded bug fixes a strong model already succeeds with or
+without the skill (the suite is a **regression guard**, and confirms the skill doesn't
+mislead), while the skill's real lift shows in **review quality** — catching functional
+bugs and prioritising them, not just checking conventions. Findings from those evals
+drove the v1.1 changes (a correctness-first review pass, an effort-matching triage gate,
+and the decision tables/playbooks).
 
 ## License
 

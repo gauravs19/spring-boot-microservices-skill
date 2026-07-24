@@ -59,6 +59,29 @@ without reading the code reads as generic and erodes trust.
 
 ---
 
+## Match effort to the task (don't over-consult)
+
+A strong model already writes correct, idiomatic Spring Boot for narrow,
+well-specified tasks — adding `@Valid`, returning a 404, wiring a
+`SecurityFilterChain`. On those, this skill earns nothing by loading a pile of
+reference files; it just spends context. So calibrate:
+
+- **Single, well-specified change** (one endpoint, one clear bug, an obvious idiom):
+  apply the fix directly. Do **not** deep-read reference files — at most glance at the
+  one relevant section. Speed and restraint are the right call.
+- **Open-ended, multi-concern, or ambiguous work** (designing a service, choosing
+  sync vs async, reviewing an unfamiliar codebase, "why is this slow/flaky", "is this
+  production-ready"): *this* is where the skill pays off. Load the relevant references,
+  use the decision tables and playbooks in `references/decisions-and-playbooks.md`, and
+  bring the estate-level judgment a bare model won't produce on its own.
+
+The skill's value is judgment on the hard, underspecified calls — not restating what
+the model already knows on the easy ones. When in doubt about which situation you're
+in, ask whether the failing test / the request already fully specifies the answer; if
+it does, just do it.
+
+---
+
 ## Version policy (read this before quoting any version)
 
 "Modern" is a moving target, and quoting a stale or mismatched version is worse
@@ -127,6 +150,13 @@ better tool — hand off rather than reinventing C4/ADR machinery here.
 Use when the user wants a new project created, or a feature implemented inside an
 existing one.
 
+Keep this mode lean. A capable model already produces correct, idiomatic
+implementation code, so don't front-load reference reading here — reach for a
+specific reference only when a concrete decision in the build is genuinely open (which
+persistence style, which communication pattern), and otherwise just build. The skill's
+leverage in this mode is getting the *baseline* right (below) and steering the handful
+of real forks, not narrating code the model would write correctly anyway.
+
 **For a brand-new project:**
 
 1. Confirm build tool (Maven or Gradle) and Java version if not obvious; both are
@@ -158,6 +188,7 @@ what you're implementing:
 
 | If you're working on... | Read |
 |---|---|
+| A genuinely ambiguous choice, or an underspecified symptom | `references/decisions-and-playbooks.md` |
 | Project layout, build files, dependencies, profiles | `references/project-setup.md`, `references/configuration-and-profiles.md` |
 | REST controllers, DTOs, validation, errors, versioning | `references/rest-api-design.md` |
 | JPA/Hibernate, R2DBC, migrations, transactions | `references/persistence-and-data.md` |
@@ -183,15 +214,24 @@ this".
    representative slice of controllers/services/repositories/tests. You cannot review
    what you haven't read; generic checklists applied blind are the hallmark of a bad
    review.
-2. **Work the dimensions** in `references/review-checklist.md`. It is the canonical
+2. **Check correctness and intent FIRST — before any standards checklist.** Trace what
+   each piece of code actually *does*, and compare it to what it clearly *intends*
+   (from names, comments, and the surrounding flow). Look specifically for: return
+   values or responses that are fetched and then ignored, logic that contradicts its
+   own comment, the wrong identifier/field being used, dead or unreachable branches,
+   and off-by-one/boundary mistakes. This step exists because a standards checklist,
+   run first, makes you audit *conventions* and glide right past a method that compiles
+   cleanly, follows every idiom, and still does the wrong thing — which is exactly the
+   most damaging kind of bug. Functional wrongness outranks every style finding.
+3. **Then work the dimensions** in `references/review-checklist.md`. It is the canonical
    checklist covering: version currency, architecture & boundaries, API design,
    persistence & transactions, security, resilience, configuration & secrets,
    observability, testing, and build/deployment.
-3. **Verify, don't assume.** Before reporting a problem, confirm it against the
+4. **Verify, don't assume.** Before reporting a problem, confirm it against the
    actual code — an unverified finding that turns out wrong costs more trust than a
    missed one. Distinguish confirmed issues from things you suspect but couldn't
    verify.
-4. **Prioritize by real impact.** Rank findings by severity (correctness/security
+5. **Prioritize by real impact.** Rank findings by severity (correctness/security
    first, then reliability, then maintainability, then style). A flat list of 40
    nitpicks is far less useful than the 5 things that actually matter, ordered.
 
@@ -294,6 +334,7 @@ All depth lives in `references/`. Load on demand:
 - `observability.md` — Micrometer metrics, tracing→OpenTelemetry, structured logging, Actuator.
 - `testing.md` — test pyramid, slice tests, Testcontainers, contract testing.
 - `containerization-and-k8s.md` — layered/buildpack images, Dockerfile, GraalVM native, K8s manifests & probes.
+- `decisions-and-playbooks.md` — decision tables for the ambiguous forks (sync vs async, JPA vs JDBC vs R2DBC, split-vs-keep) and diagnostic playbooks for underspecified symptoms ("slow endpoint", "intermittent 500s"). **This is where the skill adds the most over a bare model — reach for it on open-ended calls.**
 - `review-checklist.md` — the canonical audit checklist for Mode 3.
 
 `assets/templates/` holds ready-to-adapt `pom.xml`, `build.gradle.kts`,
