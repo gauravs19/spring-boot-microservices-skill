@@ -21,8 +21,10 @@ Driven by the repo's own evals (`evals/`, results in `evals/RESULTS.md`).
   Added as a validated fix for a real miss found in testing.
 - **Added an "effort-matching" triage gate** to `SKILL.md`: apply idioms directly on
   narrow, well-specified tasks and skip deep reference reading; reserve the references
-  and playbooks for open-ended/ambiguous work. Reduces token overhead where the skill
-  can't add value.
+  and playbooks for open-ended/ambiguous work. (Note: a rerun showed this did **not**
+  measurably reduce token overhead on trivial tasks — that cost is structural, from the
+  always-loaded `SKILL.md` body. See `evals/RESULTS.md`. The gate still correctly steers
+  effort; token reduction is deferred to a leaner body / triggering tuning.)
 - **Rebalanced depth** — build/scaffold mode kept lean (a strong model is already good
   there); design and review modes carry the richer guidance.
 

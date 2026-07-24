@@ -8,21 +8,29 @@ treat them as directional, not leaderboard-precise. Methodology and fixtures are
 
 N=3 tasks, skill-on vs no-skill baseline, graded objectively by `mvn test`.
 
-| Metric | With skill | Baseline |
-|---|---|---|
-| Resolved | **3/3 (100%)** | **3/3 (100%)** |
-| Tests modified (cheating) | none | none |
-| Avg tokens / task | ~47,500 | ~40,200 |
-| Avg wall-time / task | ~198 s | ~206 s |
+| Run | Resolved | Tests modified | Avg tokens / task | Avg wall-time / task |
+|---|---|---|---|---|
+| Baseline (no skill) | 3/3 | none | ~40,200 | ~206 s |
+| v1.0 skill-on | 3/3 | none | ~47,500 | ~198 s |
+| v1.1 skill-on (rerun) | 3/3 | none | ~48,500 | ~139 s |
 
-**Read:** no pass-rate lift, at ~18% more tokens. This is the *expected and desired*
-result for this suite — a capable model already fixes well-specified bugs, and the
-suite's job is to prove the skill doesn't **regress** correctness or mislead on
-concrete code. It doesn't. Lift is not expected here; see the review suite.
+**Read:** no pass-rate lift in any run — the *expected and desired* result for this
+suite. A capable model already fixes well-specified bugs; the suite's job is to prove
+the skill doesn't **regress** correctness or mislead on concrete code. It doesn't
+(3/3, no test tampering, across both versions). Lift is not expected here — see the
+review suite.
 
-The ~18% token overhead on trivial tasks is exactly what v1.1's "match effort to the
-task" triage gate targets: for a single well-specified change the skill now tells the
-model to apply the idiom directly and skip deep reference reading.
+**Honest note on the token overhead (v1.1 rerun):** v1.1's "match effort to the task"
+triage gate was intended to cut the ~+18% token overhead on trivial tasks. The rerun
+shows it **did not** — v1.1 skill-on is ~48.5k tokens vs v1.0's ~47.5k (flat, slightly
+up), still ~+21% over baseline. The overhead is **structural**: it's the cost of the
+always-loaded `SKILL.md` body, which the gate can't remove (and v1.1's body is slightly
+larger). The gate only avoids *reference-file* reads, and on these already-narrow tasks
+the agents weren't deep-reading references much anyway, so there was little to save. The
+wall-time drop is real but unreliable across separate runs (machine-load sensitive) and
+is not claimed as a win. Cutting trivial-task overhead needs a **leaner SKILL.md body**
+or **triggering tuning** so the skill doesn't fire on one-liners at all — deferred to a
+future version.
 
 ## Review suite (where the lift is)
 
