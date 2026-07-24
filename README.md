@@ -11,6 +11,11 @@
 ![build](https://img.shields.io/badge/build-Maven%20%2B%20Gradle-lightgrey)
 ![validated](https://img.shields.io/badge/validated-ships%20its%20own%20evals-purple)
 
+<p align="center">
+  <img src="docs/example-review.gif" alt="Review mode in action: the skill flags the functional bug ahead of every convention issue" width="720">
+</p>
+<p align="center"><em>Review mode in action — the correctness-first pass flags the functional bug ahead of every convention issue (example output).</em></p>
+
 Turn Claude into a Spring Boot specialist that builds and reviews services the way the
 best teams do in 2026 — Spring Boot 4.x on Spring Framework 7, Java 25 LTS, virtual
 threads, first-class observability, resilience, event-driven patterns, and
