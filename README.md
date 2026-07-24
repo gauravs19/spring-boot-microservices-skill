@@ -42,6 +42,19 @@ images, GraalVM native, health probes).
 
 ## Installation
 
+### Option A — Claude Code plugin marketplace (recommended)
+
+This repo is a Claude Code plugin marketplace, so you can install it without cloning:
+
+```
+/plugin marketplace add gauravs19/spring-boot-microservices-skill
+/plugin install spring-boot-microservices@gauravs19-skills
+```
+
+Updates then flow through `/plugin` like any other marketplace plugin.
+
+### Option B — manual copy
+
 Clone and drop the skill folder into your Claude Code skills directory:
 
 ```bash
@@ -49,8 +62,8 @@ git clone https://github.com/gauravs19/spring-boot-microservices-skill.git
 cp -r spring-boot-microservices-skill/spring-boot-microservices ~/.claude/skills/
 ```
 
-The skill then triggers automatically on Spring Boot / Java microservice work, or you
-can invoke it explicitly.
+Either way, the skill triggers automatically on Spring Boot / Java microservice work,
+or you can invoke it explicitly.
 
 ## Structure
 

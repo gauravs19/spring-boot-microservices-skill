@@ -1,0 +1,31 @@
+{
+  "name": "gauravs19-skills",
+  "owner": {
+    "name": "Gaurav Sharma",
+    "url": "https://github.com/gauravs19"
+  },
+  "metadata": {
+    "description": "Skills by Gaurav Sharma for Claude Code.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "spring-boot-microservices",
+      "source": "./",
+      "description": "Design, scaffold, and review modern Java Spring Boot microservices (Spring Boot 4.x / Java 25 LTS, Maven + Gradle) across the full modern stack — API design, persistence, security, Spring Cloud, resilience, messaging, observability, testing, and Kubernetes. Three modes: design, scaffold, review.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Gaurav Sharma"
+      },
+      "keywords": [
+        "spring-boot",
+        "spring-cloud",
+        "microservices",
+        "java",
+        "backend",
+        "code-review"
+      ],
+      "category": "development"
+    }
+  ]
+}

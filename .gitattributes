@@ -1,0 +1,7 @@
+# Normalize line endings: store as LF in the repo, check out native locally.
+* text=auto eol=lf
+
+# Treat these as binary (never normalize)
+*.jar binary
+*.png binary
+*.ico binary
