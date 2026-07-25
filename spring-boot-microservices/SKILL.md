@@ -2,16 +2,21 @@
 name: spring-boot-microservices
 description: >-
   Design, scaffold, and review modern Java Spring Boot microservices. Use this
-  skill whenever the user is working on a Spring Boot backend, Java microservice,
-  REST API in Java, Spring Cloud system, or asks to "design a service", "scaffold
-  a Spring Boot project", "set up a microservice", "review my Spring Boot code",
-  "add resilience / a gateway / config server / tracing", "containerize a Java
-  service", or "is this service production-ready". Trigger it even when the user
-  never says the word "microservice" — any Spring Boot / Spring Cloud / Jakarta
-  EE / Spring Data / Spring Security / Resilience4j / Micrometer / Testcontainers
-  work counts. Targets the current GA generation (Spring Boot 4.x on Spring
-  Framework 7, Java 25 LTS) with Maven and Gradle. Do NOT use it for non-Spring
-  Java, Android, Kotlin-only, or pure frontend work.
+  skill for ANY Spring Boot, Spring Cloud, or Java backend work — building or
+  reviewing REST APIs in Java, Spring Data JPA / Hibernate (including N+1 and
+  @Transactional issues), Spring Security (OAuth2, JWT), Spring Cloud Gateway,
+  Resilience4j circuit breakers and timeouts, Kafka consumers and the
+  transactional outbox, Micrometer / Actuator / OpenTelemetry observability,
+  Testcontainers tests, caching with Redis, containerizing a Java service,
+  Kubernetes probes, or zero-downtime deploys and database migrations. Trigger it
+  whenever the user says things like "design a service", "scaffold a Spring Boot
+  project", "add a gateway / config server / tracing / circuit breaker", "review
+  my Spring Boot code", "is this service production-ready", "fix this N+1 or slow
+  endpoint", "secure this API with JWT", "split this monolith", or "upgrade Spring
+  Boot 2 to 3" — even when they never say the word "microservice". Targets the
+  current GA generation (Spring Boot 4.x on Spring Framework 7, Java 25 LTS) with
+  Maven and Gradle. Do NOT use for non-Spring Java, Android, Kotlin-only, or pure
+  frontend work.
 ---
 
 # Spring Boot Microservices

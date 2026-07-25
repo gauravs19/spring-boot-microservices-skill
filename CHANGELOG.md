@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.1
+
+Discoverability ("agent SEO").
+
+### Changed
+- **Trigger-optimized the skill `description`** — broadened to the phrasings users
+  actually type (N+1, `@Transactional`, JWT, gateway, circuit breaker, slow endpoint,
+  "split this monolith", "upgrade Spring Boot 2 to 3") so it activates reliably without
+  over-triggering.
+
+### Added
+- **`llms.txt`** — a curated, LLM-legible summary at the repo root (per the llms.txt
+  convention) so models answering "what's a good Claude Code skill for Spring Boot?" have
+  clean, structured context to cite.
+- Additional GitHub topics for registry/auto-indexer discovery.
+
 ## 1.3.0
 
 Adds the production-lifecycle dimensions the earlier releases were missing — the areas

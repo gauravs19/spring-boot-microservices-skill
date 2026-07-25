@@ -4,7 +4,7 @@
 > encoded into one Claude Code skill that activates automatically whenever you touch a
 > Spring Boot backend.**
 
-![version](https://img.shields.io/badge/version-1.3.0-blue)
+![version](https://img.shields.io/badge/version-1.3.1-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![stack](https://img.shields.io/badge/Spring%20Boot-4.x%20%7C%203.5.x-brightgreen)
 ![java](https://img.shields.io/badge/Java-25%20LTS%20(21%2B)-orange)
