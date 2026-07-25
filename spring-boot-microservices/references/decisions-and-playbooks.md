@@ -13,6 +13,11 @@ Reach for this on open-ended work; skip it for narrow, well-specified changes.
 - [Decision: MVC + virtual threads vs WebFlux](#decision-mvc--virtual-threads-vs-webflux)
 - [Decision: split a service vs keep together](#decision-split-a-service-vs-keep-together)
 - [Decision: config server vs Kubernetes config](#decision-config-server-vs-kubernetes-config)
+- [Decision: cache or not (and where)](#decision-cache-or-not-and-where)
+- [Decision: scheduled/background work](#decision-scheduledbackground-work)
+- [Decision: REST vs gRPC vs GraphQL vs push](#decision-rest-vs-grpc-vs-graphql-vs-push)
+- [Decision: upgrade now vs defer](#decision-upgrade-now-vs-defer)
+- [Playbook: "make a breaking schema change with zero downtime"](#playbook-make-a-breaking-schema-change-with-zero-downtime)
 - [Playbook: "this endpoint is slow"](#playbook-this-endpoint-is-slow)
 - [Playbook: "intermittent 500s / timeouts under load"](#playbook-intermittent-500s--timeouts-under-load)
 - [Playbook: "flaky behaviour / works locally, fails in prod"](#playbook-flaky-behaviour--works-locally-fails-in-prod)
@@ -98,6 +103,72 @@ best practice."
 
 Default on K8s: **native ConfigMaps/Secrets**. The trap: standing up and securing a
 config server you don't need because a tutorial used one.
+
+## Decision: cache or not (and where)
+
+| Situation | Choose |
+|---|---|
+| Read-heavy, change-rarely, staleness-tolerant, measured latency/load problem | **Cache it** |
+| Must-be-current data (balances, sellable inventory), or write-heavy | **Don't cache** |
+| Small hot reference data, per-pod staleness OK | Local (Caffeine) |
+| Invalidation must be consistent across replicas, or large entries | Distributed (Redis) |
+
+Default: don't add a cache until a measured problem demands it, then start with
+cache-aside. The trap: adding a cache you then can't invalidate correctly — the bug costs
+more than the latency saved. See `caching.md`.
+
+## Decision: scheduled/background work
+
+| Need | Choose |
+|---|---|
+| Periodic job, service scaled >1 replica | `@Scheduled` **+ ShedLock** (run once across fleet) |
+| Isolated/heavy maintenance task, off the serving pods | Kubernetes **CronJob** |
+| Large chunked ETL/import, restartable | **Spring Batch** |
+| Fire-and-forget side effect | `@Async` (explicit executor) |
+| Long-running, client-triggered | 202 + **queue/worker**, poll for status |
+
+The trap: a bare `@Scheduled` in a multi-replica service — it fires on **every** pod. See
+`async-scheduling-and-batch.md`.
+
+## Decision: REST vs gRPC vs GraphQL vs push
+
+Summarized here; full trade-offs in `api-styles-beyond-rest.md`.
+
+| Need | Style |
+|---|---|
+| Standard resource API, broad compatibility | REST (default) |
+| Fast internal service-to-service, streaming, typed | gRPC |
+| Diverse clients shaping their own responses | GraphQL (mind N+1, depth limits) |
+| Server→client updates only | SSE |
+| Two-way real-time | WebSocket |
+
+## Decision: upgrade now vs defer
+
+| Situation | Lean |
+|---|---|
+| On an **EOL** generation (Boot 2.x, Java 8/11), taking security patches off unsupported | **Upgrade now** — you're accumulating unpatched CVEs |
+| Supported-but-not-latest (e.g. Boot 3.5), stable, no blocking need | Defer; upgrade deliberately, not reflexively |
+| Blocked by a dependency with no Jakarta/Boot-3 release | Resolve the blocker first; plan the upgrade around it |
+
+Upgrade **one major step at a time**, tests green between each; never combine with feature
+work. See `modernization-and-upgrades.md`.
+
+---
+
+## Playbook: "make a breaking schema change with zero downtime"
+
+Old and new code run together during a rolling deploy, so a breaking change must be split
+across releases (expand/contract). To rename/replace/constrain a column:
+
+1. **Expand** — add the new column (nullable/defaulted) in a migration. Backward-compatible.
+2. **Dual-write + backfill** — deploy code that writes both old and new, reads new (falls
+   back to old); backfill existing rows in a batched, non-locking migration.
+3. **Contract** — after all old pods are gone and backfill is done, stop writing the old
+   column and drop it in a later release.
+
+Never drop/rename/repurpose a column in the same release that stops using it — that's the
+outage. Keep migrations forward-only, batched (big `ALTER`s lock), and decoupled from app
+startup (`ddl-auto=validate`). Full detail in `deployment-and-migrations.md`.
 
 ---
 

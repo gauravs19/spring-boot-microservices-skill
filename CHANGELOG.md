@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.3.0
+
+Adds the production-lifecycle dimensions the earlier releases were missing — the areas
+where a service can pass every existing check and still fail in production.
+
+### Added — new reference guides (load on demand; the always-loaded body is unchanged)
+- **`ci-cd-and-supply-chain.md`** — pipeline gates, dependency/image scanning, SBOM,
+  image signing & provenance (cosign/SLSA), build-once-promote.
+- **`deployment-and-migrations.md`** — zero-downtime rollout, the **expand/contract**
+  database-migration pattern, feature flags/progressive delivery, safe rollback.
+- **`caching.md`** — Spring Cache, Caffeine vs Redis, cache-aside, invalidation strategy,
+  stampede/thundering-herd protection.
+- **`modernization-and-upgrades.md`** — the upgrade ladder, `javax`→`jakarta`,
+  Netflix-OSS→modern, OpenRewrite, strangler-fig for monolith→microservices.
+- **`async-scheduling-and-batch.md`** — `@Async`, `@Scheduled` + ShedLock (the
+  multi-replica trap), long-running jobs, Spring Batch.
+- **`compliance-and-data-privacy.md`** — PII handling, field-level encryption, audit
+  logging, retention & right-to-erasure, tenant isolation.
+- **`api-styles-beyond-rest.md`** — when/how to use gRPC, GraphQL, WebSocket/SSE.
+
+### Changed
+- `observability.md` — added SLOs, error budgets, and burn-rate alerting.
+- `spring-cloud-infra.md` — added rate limiting/quotas and service-mesh depth.
+- `review-checklist.md` — six new audit dimensions (CI/CD & supply chain, deployment &
+  migration safety, caching correctness, async & scheduling, compliance/privacy/audit) and
+  an expanded severity guide.
+- `decisions-and-playbooks.md` — new decision tables (cache-or-not, scheduling, API style,
+  upgrade-now-vs-defer) and a zero-downtime schema-change playbook.
+- Router table, reference map, and README updated; 22 reference guides total.
+
 ## 1.2.0
 
 Targets the token overhead that v1.1's triage gate failed to reduce (see

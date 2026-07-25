@@ -160,12 +160,59 @@ is. A beautifully-layered service that computes the wrong answer is still broken
   requests/limits set.
 - CI runs tests + security/dependency scans; reproducible builds (pinned versions).
 
+## 12. CI/CD & supply chain
+
+- Pipeline is the only path to prod; gates **fail the build** (tests, scans), not warn.
+- Dependency + image **vulnerability scanning** with a fail-on-high/critical policy.
+- **SBOM** generated; images **signed** (cosign) with provenance; only signed images
+  admitted to the cluster.
+- Build once, **promote the same artifact** across environments (no per-env rebuild).
+- CI secrets in a store (prefer short-lived OIDC), never plaintext in workflow/logs.
+
+## 13. Deployment & migration safety
+
+- Changes are **backward-compatible** (old + new versions run together during rollout).
+- Destructive schema changes use **expand/contract**, never drop/rename a column in the
+  same release that stops using it. (Critical — a top cause of outages/data loss.)
+- Migrations forward-only in prod, non-locking/batched; schema changes **decoupled** from
+  code deploys.
+- Readiness flips to down on SIGTERM + graceful shutdown → no dropped requests on deploy.
+- Rollback path exists (and DB changes don't block it).
+
+## 14. Caching correctness
+
+- Caching only where read-heavy and staleness-tolerant (not for must-be-current data).
+- **Invalidation designed, not forgotten** — evict on write; cross-service via events or
+  short TTL; a TTL safety net exists.
+- Hot keys protected against **stampede** (locking/coalescing/jitter).
+- Low-cardinality keys (not per-user/per-request); cache is not the source of truth;
+  degrades to source on cache outage.
+
+## 15. Async & scheduling
+
+- `@Scheduled` in a multi-replica service is guarded (**ShedLock**/leader election) or
+  provably safe to run on every pod. (Common bug: job fires N times.)
+- Long-running work is off the request thread (202 + queue/worker), not blocking.
+- Jobs are **idempotent**, retryable, observable (metrics + "hasn't run in N hours" alert).
+- `@Async` exceptions handled; context propagation considered.
+
+## 16. Compliance, privacy & audit
+
+- PII classified and minimized; not copied/propagated to services that don't need it.
+- **No PII/secrets in logs** (watch `toString()`, `show-sql`, structured fields).
+- **Audit log** (who/what/when) for sensitive actions — durable, separate from app logs.
+- Retention + **deletion/erasure** path exists; tenant isolation enforced at a layer that
+  can't be forgotten per-query and is tested.
+
 ## Severity guide
 
 - **Critical** — data loss/corruption risk, security exposure, shared DB, secrets in
-  repo, prod `ddl-auto=update`, unauthenticated sensitive endpoints.
+  repo, prod `ddl-auto=update`, **destructive same-release DB migration**,
+  unauthenticated sensitive endpoints, **PII/secrets written to logs**, unsigned/unscanned
+  images promoted to prod.
 - **High** — missing timeouts, N+1 on hot paths, no error model, missing tests on core
-  logic, non-idempotent consumers.
-- **Medium** — legacy-but-working components, weak observability, config not
-  externalized, thin test coverage.
+  logic, non-idempotent consumers, **`@Scheduled` unguarded in a multi-replica service**,
+  **cache with no invalidation strategy**, no audit trail for sensitive actions.
+- **Medium** — legacy-but-working components (with no upgrade plan), weak observability /
+  no SLOs, config not externalized, thin test coverage, unprotected hot-key cache.
 - **Low / nits** — naming, minor idiom deviations, style.

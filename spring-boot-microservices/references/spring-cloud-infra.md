@@ -84,6 +84,38 @@ Services need to find each other without hardcoded hostnames. Options:
 Choose based on platform: on Kubernetes, prefer native discovery; off it, Eureka or
 Consul.
 
+## Rate limiting & quotas
+
+Protect services from overload and abuse, and enforce fair use. Where it lives matters:
+
+- **At the gateway (edge)** — the natural place for coarse, cross-cutting limits: per-API
+  key / per-client request rates, per-IP throttling, request-size caps. Spring Cloud
+  Gateway ships a `RequestRateLimiter` filter (commonly Redis-backed, token-bucket) so
+  the limit is shared across gateway replicas.
+- **In the service** — finer, business-aware quotas (per-tenant monthly limits, per-user
+  action caps) that the gateway can't see. Resilience4j provides a `RateLimiter` for
+  in-process limiting (`resilience-and-communication.md`).
+
+Design the response deliberately: return **429 Too Many Requests** with a `Retry-After`
+header so clients back off correctly, and prefer a **shared/distributed** limiter (Redis)
+over per-instance counters, or your real limit is N× what you intended across N replicas.
+Rate limiting is also a genuine security control (brute-force, scraping, cost-DoS), not
+just capacity management.
+
+## Service mesh
+
+A service mesh (Istio, Linkerd) pushes cross-cutting network concerns into a sidecar/proxy
+layer *outside* your application code: **mTLS** between services (identity + encryption on
+every internal hop), traffic policy (retries, timeouts, circuit breaking, canary/traffic
+splitting at the platform level), and uniform telemetry. The appeal is consistency without
+per-service libraries and without touching code; the cost is real operational complexity
+and per-hop latency. It overlaps with app-level resilience (Resilience4j) and requires a
+clear split of responsibility — decide what the mesh owns (transport security, coarse
+traffic policy) vs. what stays in the app (business-aware fallbacks, domain retries).
+Adopt a mesh when you have enough services that consistent mTLS and traffic policy across
+them is worth the operational weight — not for a handful of services, where it's
+over-engineering.
+
 ## Do you need all of this?
 
 Not always, and adding infrastructure you don't need is its own anti-pattern — each of

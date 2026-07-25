@@ -4,7 +4,7 @@
 > encoded into one Claude Code skill that activates automatically whenever you touch a
 > Spring Boot backend.**
 
-![version](https://img.shields.io/badge/version-1.2.0-blue)
+![version](https://img.shields.io/badge/version-1.3.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![stack](https://img.shields.io/badge/Spring%20Boot-4.x%20%7C%203.5.x-brightgreen)
 ![java](https://img.shields.io/badge/Java-25%20LTS%20(21%2B)-orange)
@@ -89,9 +89,24 @@ Full modern-stack depth, organized so only the relevant slice loads per task:
   `@ServiceConnection`, contract testing.
 - **Containerization & Kubernetes** — layered/buildpack images, non-root Dockerfiles,
   GraalVM native / AOT+CDS, probes, graceful shutdown, resource limits.
+- **CI/CD & software supply chain** — pipeline gates, dependency/image scanning, **SBOM**,
+  **image signing & provenance (cosign/SLSA)**, build-once-promote.
+- **Zero-downtime deployment & migrations** — rolling/blue-green/canary, the
+  **expand/contract** database-migration pattern, feature flags, safe rollback.
+- **Caching** — Spring Cache, Caffeine vs Redis, cache-aside, **invalidation strategy**,
+  stampede/thundering-herd protection.
+- **Async, scheduling & batch** — `@Async`, `@Scheduled` **+ ShedLock** (the multi-replica
+  trap), long-running jobs, Spring Batch.
+- **Modernization & upgrades** — the upgrade ladder, `javax`→`jakarta`, Netflix-OSS→modern,
+  OpenRewrite, strangler-fig for monolith→microservices.
+- **Compliance & data privacy** — PII handling, field-level encryption, **audit logging**,
+  retention & right-to-erasure, tenant isolation.
+- **API styles beyond REST** — when and how to use **gRPC, GraphQL, WebSocket/SSE**.
+- **Observability SLOs** — SLIs/SLOs, error budgets, burn-rate alerting.
 - **Decision tables & playbooks** — the ambiguous forks (sync vs async, JPA/JDBC/R2DBC,
-  split-vs-keep) and diagnostic playbooks ("slow endpoint", "intermittent 500s",
-  "flaky in prod", "is this production-ready").
+  cache-or-not, scheduling, API style, upgrade-now-vs-defer) and diagnostic playbooks
+  ("slow endpoint", "intermittent 500s", "flaky in prod", "zero-downtime schema change",
+  "is this production-ready").
 
 ## Installation
 
@@ -161,20 +176,27 @@ suite** (`evals/`) and a results log — so its behavior is measured:
 ```
 spring-boot-microservices/          # the drop-in skill
 ├── SKILL.md                         # lean router: modes, version policy, effort triage
-├── references/                      # 15 guides, loaded on demand
+├── references/                      # 22 guides, loaded on demand
 │   ├── architecture-and-design.md
 │   ├── decisions-and-playbooks.md   # decision tables + diagnostic playbooks
 │   ├── project-setup.md
 │   ├── configuration-and-profiles.md
 │   ├── rest-api-design.md
+│   ├── api-styles-beyond-rest.md    # gRPC, GraphQL, WebSocket/SSE
 │   ├── persistence-and-data.md
+│   ├── caching.md                   # Spring Cache, Redis, invalidation, stampede
 │   ├── security.md
+│   ├── compliance-and-data-privacy.md
 │   ├── spring-cloud-infra.md
 │   ├── resilience-and-communication.md
 │   ├── messaging-and-events.md
+│   ├── async-scheduling-and-batch.md
 │   ├── observability.md
 │   ├── testing.md
 │   ├── containerization-and-k8s.md
+│   ├── ci-cd-and-supply-chain.md
+│   ├── deployment-and-migrations.md # zero-downtime + expand/contract migrations
+│   ├── modernization-and-upgrades.md
 │   ├── principles-and-anti-patterns.md
 │   └── review-checklist.md          # audit checklist + report format
 └── assets/templates/                # ready-to-adapt pom.xml, build.gradle.kts,
@@ -200,9 +222,16 @@ evals/                               # reproducible evaluations (see evals/READM
 | `spring-cloud-infra.md` | Gateway, Config Server, discovery, release-train alignment |
 | `resilience-and-communication.md` | Resilience4j, timeouts/retries/breakers/bulkheads, HTTP clients |
 | `messaging-and-events.md` | Kafka/RabbitMQ, event design, transactional outbox, idempotency, DLQ |
-| `observability.md` | Micrometer, tracing → OpenTelemetry, structured logging, Actuator, probes |
+| `observability.md` | Micrometer, tracing → OpenTelemetry, structured logging, Actuator, SLOs/error budgets |
+| `caching.md` | Spring Cache, Caffeine vs Redis, cache-aside, invalidation, stampede protection |
+| `async-scheduling-and-batch.md` | `@Async`, `@Scheduled` + ShedLock, long-running jobs, Spring Batch |
+| `api-styles-beyond-rest.md` | When/how to use gRPC, GraphQL, WebSocket/SSE |
 | `testing.md` | Test pyramid, slice tests, Testcontainers, contract testing |
 | `containerization-and-k8s.md` | Layered/buildpack images, GraalVM native, K8s probes, graceful shutdown |
+| `ci-cd-and-supply-chain.md` | Pipeline gates, dependency/image scanning, SBOM, signing/provenance, promotion |
+| `deployment-and-migrations.md` | Zero-downtime rollout, expand/contract migrations, feature flags, rollback |
+| `modernization-and-upgrades.md` | Upgrade ladder, javax→jakarta, Netflix-OSS→modern, OpenRewrite, strangler fig |
+| `compliance-and-data-privacy.md` | PII, encryption, audit logging, retention/erasure, tenant isolation |
 | `principles-and-anti-patterns.md` | The cross-cutting through-lines and anti-patterns, with reasoning |
 | `review-checklist.md` | Canonical audit checklist + the review report format |
 

@@ -125,3 +125,25 @@ Anchor dashboards and alerts on signals that reflect user pain:
 Alert on symptoms users feel (error rate up, latency SLO breached), not on every
 low-level metric — noisy alerting trains people to ignore alerts, which is worse than
 none.
+
+## SLOs, error budgets & alerting
+
+Metrics are the raw material; an **SLO** turns them into a target you can be held to and
+alert on meaningfully.
+
+- **SLI** — a Service Level *Indicator*: a measured ratio of good events (e.g. % of
+  requests under 300ms, % non-5xx). **SLO** — the *Objective*: the target for that SLI
+  over a window (e.g. 99.9% of requests succeed over 30 days). Define SLOs from what users
+  actually need, not from what's easy to measure.
+- **Error budget** — the allowed failure (a 99.9% SLO permits 0.1% failures). It reframes
+  reliability as a budget you spend: within budget, ship features; budget exhausted, stop
+  and stabilize. It turns "how reliable is enough?" into a number both product and
+  engineering agree on.
+- **Alert on burn rate, not raw metrics.** Page when the error budget is burning fast
+  enough to matter (multi-window burn-rate alerts) rather than on every blip. This is how
+  you get alerts that mean "a human must act now" instead of noise. Everything else is a
+  dashboard or a ticket, not a page.
+
+Keep the paging surface small and symptom-based; route low-urgency signals to dashboards.
+An on-call rotation that trusts its pager is worth more than perfect metric coverage
+nobody looks at.

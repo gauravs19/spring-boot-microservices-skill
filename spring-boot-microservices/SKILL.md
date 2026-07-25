@@ -117,9 +117,16 @@ Load the reference matching what you're implementing:
 | Gateway, config server, service discovery | `references/spring-cloud-infra.md` |
 | Circuit breakers, retries, timeouts, HTTP clients | `references/resilience-and-communication.md` |
 | Kafka, events, outbox, idempotency | `references/messaging-and-events.md` |
-| Metrics, tracing, logging, Actuator | `references/observability.md` |
+| Metrics, tracing, logging, Actuator, SLOs | `references/observability.md` |
+| Caching (Spring Cache, Redis, invalidation) | `references/caching.md` |
+| Async work, scheduled jobs, batch | `references/async-scheduling-and-batch.md` |
+| gRPC, GraphQL, WebSocket/SSE | `references/api-styles-beyond-rest.md` |
 | Tests, Testcontainers | `references/testing.md` |
 | Dockerfile, images, Kubernetes, native | `references/containerization-and-k8s.md` |
+| CI/CD pipeline, scanning, SBOM, image signing | `references/ci-cd-and-supply-chain.md` |
+| Zero-downtime deploys, DB migrations, rollout | `references/deployment-and-migrations.md` |
+| Upgrading / modernizing a legacy service | `references/modernization-and-upgrades.md` |
+| PII, audit logging, data retention, tenancy | `references/compliance-and-data-privacy.md` |
 
 ## Mode 3 — Review / audit
 
@@ -169,9 +176,16 @@ Load on demand:
 - `spring-cloud-infra.md` — Gateway, Config Server, discovery, release-train alignment.
 - `resilience-and-communication.md` — Resilience4j, timeouts/retries/bulkheads, HTTP clients.
 - `messaging-and-events.md` — Kafka, event-driven patterns, transactional outbox, idempotency.
-- `observability.md` — Micrometer metrics, tracing→OpenTelemetry, structured logging, Actuator.
+- `observability.md` — Micrometer metrics, tracing→OpenTelemetry, structured logging, Actuator, SLOs/error budgets.
+- `caching.md` — Spring Cache, local vs distributed (Caffeine/Redis), invalidation, stampede protection.
+- `async-scheduling-and-batch.md` — `@Async`, `@Scheduled` + ShedLock (multi-replica trap), long-running jobs, Spring Batch.
+- `api-styles-beyond-rest.md` — when/how to use gRPC, GraphQL, WebSocket/SSE instead of REST.
 - `testing.md` — test pyramid, slice tests, Testcontainers, contract testing.
 - `containerization-and-k8s.md` — layered/buildpack images, Dockerfile, GraalVM native, K8s probes.
+- `ci-cd-and-supply-chain.md` — pipeline gates, dependency/image scanning, SBOM, image signing/provenance, promotion.
+- `deployment-and-migrations.md` — zero-downtime rollout, expand/contract DB migrations, feature flags, rollback.
+- `modernization-and-upgrades.md` — the upgrade ladder, `javax`→`jakarta`, Netflix-OSS→modern, OpenRewrite, strangler fig.
+- `compliance-and-data-privacy.md` — PII, encryption, audit logging, retention/erasure, tenant isolation.
 - `principles-and-anti-patterns.md` — the through-lines and anti-patterns, with reasoning.
 - `review-checklist.md` — canonical audit checklist + report format for Mode 3.
 
